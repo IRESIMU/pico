@@ -40,9 +40,9 @@ file = open(filename, "a")
 adc = ADC(Pin(27))
 
 # Sampling parameters
-sampling_rate = 250  # Hz
+sampling_rate = 2000  # Hz
 sampling_interval = 1 / sampling_rate
-num_samples = 500  # Number of samples to take
+num_samples = 2000  # Number of samples to take
 
 # Offset and conversion factors
 offset = 0  # ADC offset in count
@@ -103,7 +103,7 @@ try:
         samples = sample_ac_signal()
         led.value(1)
         
-        print(samples)
+        #print(samples)
         
         window_size = 25  # Adjust the window size as needed
         smoothed_data = moving_average(samples, window_size)
@@ -121,7 +121,7 @@ try:
         
         # Store the values in the buffer
         #buffer = ("Peak Read: {}, Min Read: {}, Avg Read: {}, Avg Tension: {:.4f} V, Avg Current: {:.4f} A\n".format(
-        #    peak_read, min_read, avg_read, avg_voltage, avg_current))
+        #     peak_read, min_read, avg_read, avg_voltage, avg_current))
         
         data = {
             "Peak": peak_read,
@@ -141,13 +141,15 @@ try:
         response = urequests.post(url, data=json_data)
         
         
-        #file.write(buffer)
-        #file.flush()
-        #print(buffer)
+        for line in samples:
+            file.write(str(line) + "\n")
+        #file.write(samples)
+        file.flush()
+        print(json_data)
         gc.collect()
 
-        # Sleep before the next round of sampling
-        #time.sleep(1)
+        # Sleep before the next round of sampling, 5min is a reasonable value for the boiler
+        #time.sleep(300)
 finally:
     # Make sure to close the file when done (although in this loop, it will run indefinitely)
     file.close()
